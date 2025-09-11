@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManager.Application;
+using TaskManager.Application.Interfaces;
 using TaskManager.Infrastructure;
+using TaskManager.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Register Repositories
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Register DbContext
 builder.Services.AddDbContext<TaskManagerDbContext>(options =>
