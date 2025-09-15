@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
-
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
