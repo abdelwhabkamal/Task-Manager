@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
@@ -17,6 +18,7 @@ public class ProjectsController : ControllerBase
         _mapper = mapper;
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create(ProjectCreateDto projectDto)
     {
