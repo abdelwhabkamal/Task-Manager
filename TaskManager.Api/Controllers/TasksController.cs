@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
 using TaskManager.Domain.Entities;
 
@@ -8,17 +9,20 @@ using TaskManager.Domain.Entities;
 public class TasksController : ControllerBase
 {
     private readonly ITaskRepository _tasks;
+    private readonly IMapper _mapper;
 
-    public TasksController(ITaskRepository tasks)
+    public TasksController(ITaskRepository tasks, IMapper mapper)
     {
         _tasks = tasks;
+        _mapper = mapper;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var tasks = await _tasks.GetAllAsync();
-        return Ok(tasks);
+        var result = _mapper.Map<IEnumerable<TaskDto>>(tasks);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -26,60 +30,15 @@ public class TasksController : ControllerBase
     {
         var task = await _tasks.GetByIdAsync(id);
         if (task == null) return NotFound();
-        return Ok(task);
+        return Ok(_mapper.Map<TaskDto>(task));
     }
 
-    [HttpGet("project/{projectId}")]
-    public async Task<IActionResult> GetByProject(int projectId)
-    {
-        var tasks = await _tasks.GetTasksByProjectIdAsync(projectId);
-        return Ok(tasks);
-    }
-
-    [HttpGet("user/{userId}")]
-    public async Task<IActionResult> GetByUser(int userId)
-    {
-        var tasks = await _tasks.GetTasksByUserIdAsync(userId);
-        return Ok(tasks);
-    }
-
-    [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create(TaskItem task)
+    public async Task<IActionResult> Create(CreateTaskDto dto)
     {
+        var task = _mapper.Map<TaskItem>(dto);
         await _tasks.AddAsync(task);
         await _tasks.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
-    }
-
-    [Authorize]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, TaskItem updated)
-    {
-        var task = await _tasks.GetByIdAsync(id);
-        if (task == null) return NotFound();
-
-        task.Title = updated.Title;
-        task.Description = updated.Description;
-        task.Status = updated.Status;
-        task.Priority = updated.Priority;
-        task.AssignedTo = updated.AssignedTo;
-        task.DueDate = updated.DueDate;
-
-        _tasks.Update(task);
-        await _tasks.SaveChangesAsync();
-        return NoContent();
-    }
-
-    [Authorize]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var task = await _tasks.GetByIdAsync(id);
-        if (task == null) return NotFound();
-
-        _tasks.Remove(task);
-        await _tasks.SaveChangesAsync();
-        return NoContent();
+        return CreatedAtAction(nameof(GetById), new { id = task.Id }, _mapper.Map<TaskDto>(task));
     }
 }

@@ -8,11 +8,13 @@ namespace TaskManager.Application
     {
         public MappingProfile()
         {
-            CreateMap<Project, ProjectReadDto>()
-                .ForMember(dest => dest.OwnerName,
-                           opt => opt.MapFrom(src => src.CreatedBy.FirstName + " " + src.CreatedBy.LastName));
+            CreateMap<Project, ProjectReadDto>();
 
             CreateMap<ProjectCreateDto, Project>();
+
+            // Task Mappings
+            CreateMap<TaskItem, TaskDto>();
+            CreateMap<CreateTaskDto, TaskItem>();
         }
     }
 }
